@@ -1,0 +1,51 @@
+name: "微客邦全平台打包"
+
+on:
+  push:
+    tags:
+      - 'v*' # 推送 v1.0.0 这种标签时触发
+
+jobs:
+  publish:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # 开启两个并行任务：一个打 Win，一个打 Mac
+        platform: [windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. 安装 Bun (你的核心环境)
+      - name: setup bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      # 2. 安装 Rust (Tauri 编译核心)
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # 关键：如果是 macOS 任务，预装双架构支持
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      # 3. 安装前端依赖
+      - name: install frontend dependencies
+        run: bun install
+
+      # 4. 执行 Tauri 官方打包动作
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          # 记得在 GitHub Settings 里配好这个 Secret
+          GITHUB_TOKEN: ${{ secrets.TAURI_AUTH_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: "微客邦·在线 v__VERSION__"
+          releaseBody: "由 GitHub Actions 自动构建。包含 Windows x64 安装包及 macOS Universal (Intel+M芯片) DMG。"
+          releaseDraft: true # 打包完先存为草稿，你可以检查没问题再点击发布
+          prerelease: false
+          # 关键参数：如果是 mac 平台，强制开启通用二进制打包
+          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}

@@ -5,7 +5,7 @@
   "identifier": "com.beemin.gwx",
   "build": {
     "devUrl": "http://localhost:3000",
-    "frontendDist": "https://gwk.bj.qkce.com"
+    "frontendDist": "https://gwk.ikn.cc"
   },
   "app": {
     "windows": [
