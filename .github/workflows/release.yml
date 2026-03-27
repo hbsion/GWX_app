@@ -3,7 +3,7 @@ name: "微客邦全平台打包"
 on:
   push:
     tags:
-      - 'v*' # 推送 v1.0.0 这种标签时触发
+      - "v*" # 推送 v1.0.0 这种标签时触发
 
 jobs:
   publish:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-      
+
       # 1. 安装 Bun (你的核心环境)
       - name: setup bun
         uses: oven-sh/setup-bun@v1
@@ -43,9 +43,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TAURI_AUTH_TOKEN }}
         with:
           tagName: v__VERSION__
-          releaseName: "微客邦·在线 v__VERSION__"
-          releaseBody: "由 GitHub Actions 自动构建。包含 Windows x64 安装包及 macOS Universal (Intel+M芯片) DMG。"
-          releaseDraft: true # 打包完先存为草稿，你可以检查没问题再点击发布
+          releaseName: "微客邦 SCRM v__VERSION__"
+          releaseDraft: true
           prerelease: false
-          # 关键参数：如果是 mac 平台，强制开启通用二进制打包
-          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+          # 增加 --verbose 可以在出错时看到更详细的日志
+          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '--target x86_64-pc-windows-msvc' }}
