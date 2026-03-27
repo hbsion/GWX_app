@@ -19,14 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # 这一步能显著降低 WiX 下载失败的概率
-      - name: install dependencies (windows only)
-        if: matrix.platform == 'windows-latest'
-        shell: powershell
-        run: |
-          dotnet tool install --global SignClient
-          
-
       # 1. 安装 Bun (你的核心环境)
       - name: setup bun
         uses: oven-sh/setup-bun@v1
